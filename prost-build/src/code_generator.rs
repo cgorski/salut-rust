@@ -91,12 +91,13 @@ impl<'a> CodeGenerator<'a> {
             code_gen.path.pop();
         }
         code_gen.path.pop();
-        code_gen.append_registration(&file.extension, ExtensionContext::File);
+        let file_name_split = file_name.split(".").collect::<Vec<&str>>()[0];
+        code_gen.append_registration(&file.extension, ExtensionContext::File, file_name_split);
 
         code_gen.path.push(4);
         for (idx, message) in file.message_type.into_iter().enumerate() {
             code_gen.path.push(idx as i32);
-            code_gen.append_message(message);
+            code_gen.append_message(message, file_name_split);
             code_gen.path.pop();
         }
         code_gen.path.pop();
@@ -125,7 +126,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    fn append_message(&mut self, message: DescriptorProto) {
+    fn append_message(&mut self, message: DescriptorProto, file_name_split : &str) {
         debug!("  message: {:?}", message.name());
 
         let message_name = message.name().to_string();
@@ -252,7 +253,7 @@ impl<'a> CodeGenerator<'a> {
             self.path.push(3);
             for (nested_type, idx) in nested_types {
                 self.path.push(idx as i32);
-                self.append_message(nested_type);
+                self.append_message(nested_type, file_name_split);
                 self.path.pop();
             }
             self.path.pop();
@@ -293,7 +294,7 @@ impl<'a> CodeGenerator<'a> {
             self.path.pop();
         }
         self.path.pop();
-        self.append_registration(&message.extension, ExtensionContext::Message);
+        self.append_registration(&message.extension, ExtensionContext::Message, file_name_split);
 
         if has_impl_block {
             self.append_impl_close();
@@ -343,6 +344,7 @@ impl<'a> CodeGenerator<'a> {
         &mut self,
         extensions: &[FieldDescriptorProto],
         context: ExtensionContext,
+        file_name_split: &str,
     ) {
         if extensions.is_empty() {
             return;
@@ -362,7 +364,7 @@ impl<'a> CodeGenerator<'a> {
         self.push_indent();
         self.buf
 
-            .push_str(format!("pub fn register_extensions_{}(registry: &mut ::prost::ExtensionRegistry) {{\n", file_name).as_str());
+            .push_str(format!("pub fn register_extensions_{}(registry: &mut ::prost::ExtensionRegistry) {{\n", file_name_split).as_str());
 
         self.depth += 1;
         for ext in extensions {
