@@ -361,7 +361,9 @@ impl<'a> CodeGenerator<'a> {
         self.buf.push_str("#[allow(dead_code)]\n");
         self.push_indent();
         self.buf
-            .push_str("pub fn register_extensions(registry: &mut ::prost::ExtensionRegistry) {\n");
+
+            .push_str(format!("pub fn register_extensions_{}(registry: &mut ::prost::ExtensionRegistry) {{\n", file_name).as_str());
+
         self.depth += 1;
         for ext in extensions {
             self.push_indent();
