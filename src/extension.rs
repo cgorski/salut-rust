@@ -1,3 +1,4 @@
+use alloc::collections::btree_map::Iter;
 use crate::alloc::boxed::Box;
 use crate::alloc::collections::btree_map::Entry;
 use crate::alloc::collections::BTreeMap;
@@ -125,6 +126,16 @@ where
         match ext_value.as_any().downcast_ref::<ExtensionValueImpl<T>>() {
             None => Err(ExtensionSetError::CastFailed),
             Some(val) => Ok(val),
+        }
+    }
+
+    pub fn extension_set_collection_iter<T>(&self) -> Option<Iter<FieldTag, Box<dyn ExtensionValue>>>
+    where
+        T: 'static + Merge + Encode + Clone + PartialEq + Default + Debug {
+        
+        match &self.tag_to_value {
+            None => {None}
+            Some(collection) => {Some(collection.iter())}
         }
     }
 
