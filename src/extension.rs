@@ -130,9 +130,9 @@ where
     }
 
     /// Returns an extension if and only if there is one extension in the set
-    pub fn get_single_extension<T>(&self) -> Result<&ExtensionValueImpl<T>, ExtensionSetError>
-    where
-        T: 'static + Merge + Encode + Clone + PartialEq + Default + Debug {
+    pub fn get_single_extension(&self) -> Result<&Box<dyn ExtensionValue>, ExtensionSetError> {
+    // where
+    //     T: 'static + Merge + Encode + Clone + PartialEq + Default + Debug {
 
         let tag_to_value = match self.tag_to_value.as_ref() {
             None => return Err(ExtensionSetError::ExtensionNotFound),
@@ -146,10 +146,7 @@ where
             None => return Err(ExtensionSetError::ExtensionNotFound),
             Some(val) => val,
         };
-        match ext_value.as_any().downcast_ref::<ExtensionValueImpl<T>>() {
-            None => Err(ExtensionSetError::CastFailed),
-            Some(val) => Ok(val),
-        }
+        Ok(ext_value)
     }
 
     pub fn extension_value_mut<T>(
