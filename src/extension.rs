@@ -1,4 +1,4 @@
-use alloc::collections::btree_map::Iter;
+
 use crate::alloc::boxed::Box;
 use crate::alloc::collections::btree_map::Entry;
 use crate::alloc::collections::BTreeMap;
@@ -129,13 +129,26 @@ where
         }
     }
 
-    pub fn extension_set_collection_iter<T>(&self) -> Option<Iter<FieldTag, Box<dyn ExtensionValue>>>
+    /// Returns an extension if and only if there is one extension in the set
+    pub fn get_single_extension<T>(&self) -> Result<&ExtensionValueImpl<T>, ExtensionSetError>
     where
         T: 'static + Merge + Encode + Clone + PartialEq + Default + Debug {
-        
-        match &self.tag_to_value {
-            None => {None}
-            Some(collection) => {Some(collection.iter())}
+
+        let tag_to_value = match self.tag_to_value.as_ref() {
+            None => return Err(ExtensionSetError::ExtensionNotFound),
+            Some(val) => val,
+        };
+        if tag_to_value.len() != 0 {
+            return Err(ExtensionSetError::NoSingleExtension)
+        }
+        ;
+        let (_,ext_value) = match tag_to_value.iter().nth(0) {
+            None => return Err(ExtensionSetError::ExtensionNotFound),
+            Some(val) => val,
+        };
+        match ext_value.as_any().downcast_ref::<ExtensionValueImpl<T>>() {
+            None => Err(ExtensionSetError::CastFailed),
+            Some(val) => Ok(val),
         }
     }
 
@@ -389,6 +402,9 @@ pub enum ExtensionSetError {
     /// User error. Attempting to retrieve a value using a type parameter that does not match
     /// the stored data. This should probably never happen.
     CastFailed,
+
+    /// The set contains more or less than one extension
+    NoSingleExtension
 }
 
 impl Display for ExtensionSetError {
@@ -406,6 +422,9 @@ impl Debug for ExtensionSetError {
             }
             ExtensionSetError::CastFailed => {
                 write!(f, "USER ERROR - Type does not match stored data type.")
+            }
+            ExtensionSetError::NoSingleExtension => {
+                write!(f, "More or than than one extension in set.")
             }
         }
     }
