@@ -1,3 +1,5 @@
+Salut is a derivative of Prost with extensions code added. All code commits prior to the fork are copyright their respective authors. 
+
 ![continuous integration](https://github.com/tokio-rs/prost/workflows/continuous%20integration/badge.svg)
 [![Documentation](https://docs.rs/prost/badge.svg)](https://docs.rs/prost/)
 [![Crate](https://img.shields.io/crates/v/prost.svg)](https://crates.io/crates/prost)
