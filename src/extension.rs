@@ -129,26 +129,6 @@ where
         }
     }
 
-    /// Returns an extension if and only if there is one extension in the set
-    pub fn get_single_extension(&self) -> Result<&Box<dyn ExtensionValue>, ExtensionSetError> {
-    // where
-    //     T: 'static + Merge + Encode + Clone + PartialEq + Default + Debug {
-
-        let tag_to_value = match self.tag_to_value.as_ref() {
-            None => return Err(ExtensionSetError::ExtensionNotFound),
-            Some(val) => val,
-        };
-        if tag_to_value.len() != 0 {
-            return Err(ExtensionSetError::NoSingleExtension)
-        }
-        ;
-        let (_,ext_value) = match tag_to_value.iter().nth(0) {
-            None => return Err(ExtensionSetError::ExtensionNotFound),
-            Some(val) => val,
-        };
-        Ok(ext_value)
-    }
-
     pub fn extension_value_mut<T>(
         &mut self,
         extension: &ExtensionImpl<T>,
@@ -399,9 +379,6 @@ pub enum ExtensionSetError {
     /// User error. Attempting to retrieve a value using a type parameter that does not match
     /// the stored data. This should probably never happen.
     CastFailed,
-
-    /// The set contains more or less than one extension
-    NoSingleExtension
 }
 
 impl Display for ExtensionSetError {
@@ -419,9 +396,6 @@ impl Debug for ExtensionSetError {
             }
             ExtensionSetError::CastFailed => {
                 write!(f, "USER ERROR - Type does not match stored data type.")
-            }
-            ExtensionSetError::NoSingleExtension => {
-                write!(f, "More or than than one extension in set.")
             }
         }
     }
