@@ -83,6 +83,7 @@ impl<'a> CodeGenerator<'a> {
 
         let file_name = file.name.as_ref().unwrap();
         debug!("file: {:?}, package: {:?}", file_name, code_gen.package);
+        code_gen.buf.push_str("![allow(clippy::all)]\n");
 
         code_gen.path.push(7);
         for (idx, extension) in file.extension.iter().enumerate() {
