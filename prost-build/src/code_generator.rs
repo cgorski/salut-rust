@@ -83,7 +83,6 @@ impl<'a> CodeGenerator<'a> {
 
         let file_name = file.name.as_ref().unwrap();
         debug!("file: {:?}, package: {:?}", file_name, code_gen.package);
-        code_gen.buf.push_str("#![allow(clippy::all)]\n");
 
         code_gen.path.push(7);
         for (idx, extension) in file.extension.iter().enumerate() {
@@ -195,6 +194,7 @@ impl<'a> CodeGenerator<'a> {
         self.append_doc(&fq_message_name, None);
         self.append_type_attributes(&fq_message_name);
         self.push_indent();
+        self.buf.push_str("#[allow(clippy::derive_partial_eq_without_eq)]\n");
         self.buf
             .push_str("#[derive(Clone, PartialEq, ::prost::Message");
         if is_extendable {
@@ -665,6 +665,7 @@ impl<'a> CodeGenerator<'a> {
         let oneof_name = format!("{}.{}", fq_message_name, oneof.name());
         self.append_type_attributes(&oneof_name);
         self.push_indent();
+        self.buf.push_str("#[allow(clippy::derive_partial_eq_without_eq)]\n");
         self.buf
             .push_str("#[derive(Clone, PartialEq, ::prost::Oneof)]\n");
         self.push_indent();
